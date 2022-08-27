@@ -1,4 +1,5 @@
 # Implementing RNNs on 9 IMD Groups, male, GRU 3 layers
+# There are many numbers in the code which should be replaced by variables, however for better understanding of dimensions, numbers are included here.
 
 ##################################################################
 ### required packages and loading data
@@ -16,7 +17,7 @@ library(readxl)
 
 # set.seed(1234) use this only if no for loop
 
-male_mort <- read_excel("~/TUM/Master Thesis/Codes/General R plots/Finale Daten.xlsx", 
+male_mort <- read_excel("~/Finale Daten.xlsx", 
                           sheet = "Daten_male")
 male_mort <- male_mort[which(male_mort$Age > 49),] # extract data where Age is greater or equal 50
 male_mort$Group_number <- as.factor(male_mort$Group_number) # group number should be a factor variable with different levels
@@ -223,7 +224,8 @@ for (i in 1:number_loops) {
   ##################################################################
   
   load_model_weights_hdf5(model, file.name) # load weights of model, if interest in output, could be taken from the loop
-  in.sample.error.male[i] <- round(10^4*mean((exp(-as.vector(model %>% predict(x.train)))-exp(-y.train))^2),4) # calculate in-sample error in the loop, will be done also separately for fitted data
+  in.sample.error.male[i] <- round(10^4*mean((exp(-as.vector(model %>% predict(x.train)))-exp(-y.train))^2),4)
+  # calculate in-sample error in the loop, will be done also separately for fitted data
   
   ##################################################################
   ### predicting years 2015-2018 and calculating out-of-sample loss 
@@ -274,7 +276,8 @@ for (i in 1:number_loops) {
   test.group9 <- pred.result.group9[[1]][which(male_mort2.group9$Year > ObsYear),]
   error.male[9] <- round(10^4*mean((exp(test.group9$Lograte)-exp(test.Y.group9$Lograte))^2),4)
   
-  forecasted.rates.male[,i] <- c(test.group1$Lograte, test.group2$Lograte, test.group3$Lograte, test.group4$Lograte, test.group5$Lograte, test.group6$Lograte, test.group7$Lograte, test.group8$Lograte, test.group9$Lograte) # store forecasted logrates
+  forecasted.rates.male[,i] <- c(test.group1$Lograte, test.group2$Lograte, test.group3$Lograte, test.group4$Lograte, test.group5$Lograte,
+                                 test.group6$Lograte, test.group7$Lograte, test.group8$Lograte, test.group9$Lograte) # store forecasted logrates
   out.sample.error.male[i] <- sum(error.male)
   
 } # end for loop
@@ -292,12 +295,14 @@ final.forecasted.rates.male <- array(NA, dim = 9*46*4)
 groups_listed <- c(rep(1,184),rep(2,184),rep(3,184),rep(4,184),rep(5,184),rep(6,184),rep(7,184),rep(8,184),rep(9,184))
 sorted.forecasted.rates.male <- cbind(rep(test.group1$Year,9),rep(test.group1$Age,9),groups_listed,mean.forecasted.rates.male)
 colnames(sorted.forecasted.rates.male) <- c("Year","Age","Group","Lograte")
-sorted.forecasted.rates.male <- sorted.forecasted.rates.male[order(sorted.forecasted.rates.male[,1], sorted.forecasted.rates.male[,2], sorted.forecasted.rates.male[,3]),]
+sorted.forecasted.rates.male <- sorted.forecasted.rates.male[order(sorted.forecasted.rates.male[,1], sorted.forecasted.rates.male[,2],
+                                                                   sorted.forecasted.rates.male[,3]),]
 
 # export predicted rates
-write.csv(-pred.rates, paste("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/ML Codes/RNN/Parameters/pred.rates_", RNN.type, "_3_",tau1,tau2,tau3,".csv", sep=""))
+write.csv(-pred.rates, paste("~/pred.rates_", RNN.type, "_3_",tau1,tau2,tau3,".csv", sep=""))
 
-# plot with ggplot - validation loss and training loss plotted to check when early stopping due to increasing out-of-sample error is necessary - choose one model to perform this
+# plot with ggplot - validation loss and training loss plotted to check when early stopping due to increasing out-of-sample error is necessary -
+# choose one model to perform this
 epochs <- 1:500
 val_loss <- data.frame(epochs,fit[[2]]$val_loss)
 loss <- data.frame(fit[[2]]$loss)
@@ -310,33 +315,3 @@ plot.losses <- function(name.model, gender, val_loss, loss){
     ylim(0,0.05) + geom_line(colour = "darkorange1",aes(y = loss), data = loss)
 }
 plot.losses(name.model, gender, val_loss, loss)
-
-
-
-
-##################################################################
-### Other stuff
-##################################################################
-
-
-# fitted values richtig ausrlesen mit for-Schleife - Aufteilungsprozess rückgängig machen
-y.train.pred_1 <- array(NA, dim=c(xx))
-y.train.pred_2 <- array(NA, dim=c(xx))
-y.train.pred_3 <- array(NA, dim=c(xx))
-y.train.pred_4 <- array(NA, dim=c(xx))
-y.train.pred_5 <- array(NA, dim=c(xx))
-y.train.pred_6 <- array(NA, dim=c(xx))
-y.train.pred_7 <- array(NA, dim=c(xx))
-y.train.pred_8 <- array(NA, dim=c(xx))
-y.train.pred_9 <- array(NA, dim=c(xx))
-for (k in 1:xx){
-  y.train.pred_1[k] <- pred.rates[(k-1)*9+1]
-  y.train.pred_2[k] <- pred.rates[(k-1)*9+2]
-  y.train.pred_3[k] <- pred.rates[(k-1)*9+3]
-  y.train.pred_4[k] <- pred.rates[(k-1)*9+4]
-  y.train.pred_5[k] <- pred.rates[(k-1)*9+5]
-  y.train.pred_6[k] <- pred.rates[(k-1)*9+6]
-  y.train.pred_7[k] <- pred.rates[(k-1)*9+7]
-  y.train.pred_8[k] <- pred.rates[(k-1)*9+8]
-  y.train.pred_9[k] <- pred.rates[(k-1)*9+9]
-}
