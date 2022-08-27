@@ -6,10 +6,11 @@ library(ggplot2)
 library(readxl)
 library(dplyr)
 
-data_crude_rates <- read_excel("~/TUM/Master Thesis/Codes/General R plots/Finale Daten 9 Quantile 5 Variablen.xlsx", 
+data_crude_rates <- read_excel("~/Finale Daten.xlsx", 
                                  sheet = "Daten")
 
-colors_rates <- c( "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000") #https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
+colors_rates <- c( "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000")
+# https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
 
 # crude death rates plots per age, gender and group for all years
 age1 <- 83
@@ -37,10 +38,11 @@ graph_2
 
 # crude death rates for 5 groups
 
-data_crude_rates_5 <- read_excel("~/TUM/Master Thesis/Codes/General R plots/Finale Daten 5 Quantile 5 Variablen.xlsx", 
+data_crude_rates_5 <- read_excel("~/Finale Daten.xlsx", 
                                sheet = "Daten")
 
-colors_rates_5 <- c( "#000066", "#6699FF", "#FFD700", "#EE82EE", "#FF0000") #https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
+colors_rates_5 <- c( "#000066", "#6699FF", "#FFD700", "#EE82EE", "#FF0000")
+# https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
 
 # crude death rates plots per age, gender and group for all years
 data_truncated_Age_5 <- data_crude_rates_5 %>% 
