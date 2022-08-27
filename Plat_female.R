@@ -20,7 +20,7 @@ data_female <- data_female %>%
 age_max <- max(data_female$Age) # maximum age
 age_min <- min(data_female$Age) # minimum age
 period_max <- max(data_female$Year) # maximum period -
-# do not take 2018 since for later comparing with ML models need of test set which is 10% of 37 years = approx. 4 years
+# do not take 2018 as maximum period, this is just for training set
 period_min <- min(data_female$Year)  # minimum period
 province_groups <- 9 # number of groups provinces are divided into based on IMD-Index
 
@@ -59,7 +59,7 @@ theta <- c(kappa_1_Plat,kappa_2_Plat) # whole parameter vector for optimization,
 ### 2) define Poisson MLE function which will be optimized
 # estimate theta as a whole via minimizing negative loglikelihood
 # derived loglikelihood: sum_(x,t,i) D(x,t,i)*(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i))
-                                - E(x,t,i)*exp(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i)) + c
+#                                - E(x,t,i)*exp(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i)) + c
 
 Poisson_theta_Plat <- function(theta){
   kappa_1_Plat <- theta[1:(period_number*group_number)]
