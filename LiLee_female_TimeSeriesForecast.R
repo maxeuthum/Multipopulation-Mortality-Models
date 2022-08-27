@@ -13,16 +13,16 @@
 ##############################
 #import whole data and define basic variables
 
-data_female <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/fitteddata_female_50.xlsx")
+data_female <- read_excel("~/fitteddata_female_50.xlsx") # this data comes from fitting the LiLee model, see other part of repository
 age_max <- max(data_female$Age)
 age_min <- min(data_female$Age)
-period_max <- 2018 #last year of prediction
-period_min <- 2015 #first year of prediction
-ObsYear <- 2014 #last year from training data
+period_max <- 2018 # last year of prediction
+period_min <- 2015 # first year of prediction
+ObsYear <- 2014 # last year from training data
 
-age_number <- age_max - age_min + 1 #number of ages observed
-period_number <- period_max - period_min + 1 #number of periods to predict
-group_number <- 9 #number of deprivation groups
+age_number <- age_max - age_min + 1 # number of ages observed
+period_number <- period_max - period_min + 1 # number of periods to predict
+group_number <- 9 # number of deprivation groups
 
 groups <- c("g1","g2","g3","g4","g5","g6","g7","g8","g9")
 groups_numbers <- c(1,2,3,4,5,6,7,8,9)
@@ -31,7 +31,7 @@ groups_numbers <- c(1,2,3,4,5,6,7,8,9)
 # group specific time component
 ##############################
 
-timeseries_2 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/kappa_LC_female_50.xlsx")
+timeseries_2 <- read_excel("~/kappa_LC_female_50.xlsx")
 timeseries_2$Group <- as.factor(timeseries_2$Group)
 
 forecast_kappa <- array(NA, c(9, 4, 5))
@@ -41,7 +41,8 @@ model_summary_kappa <- list()
 
 #forecast kappa_LC
 for(g in groups_numbers){
-  fit <- auto.arima(ts(timeseries_2$Kappa[which(timeseries_2$Group_number == g)])) # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
+  fit <- auto.arima(ts(timeseries_2$Kappa[which(timeseries_2$Group_number == g)]))
+  # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
   fc <- forecast(fit,h=4)
   model_type_kappa[[g]] <- fc$method
   model_coef_kappa[[g]] <- fc$model$coef
@@ -57,7 +58,7 @@ for(g in groups_numbers){
 # overall time component
 ##############################
 
-timeseries_1 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/K_LC_female_50.xlsx")
+timeseries_1 <- read_excel("~/K_LC_female_50.xlsx")
 
 forecast_K <- array(NA, c(5, 4))
 model_type_K <- list()
@@ -65,7 +66,7 @@ model_coef_K <- list()
 model_summary_K <- list()
 
 #forecast K_LC
-fit <- auto.arima(ts(timeseries_1$K)) # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
+fit <- auto.arima(ts(timeseries_1$K))
 fc <- forecast(fit,h=4)
 model_type_K <- fc$method
 model_coef_K <- fc$model$coef
@@ -80,9 +81,9 @@ forecast_K[5,] <- fc$upper[,2]
 # import parameters from likelihood estimation
 ##############################
 
-alpha_LC <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/alpha_LC_female_50.xlsx")
-B_LC <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/B_LC_female_50.xlsx")
-beta_LC <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/LiLeeModel/Parameters/beta_LC_female_50.xlsx")
+alpha_LC <- read_excel("~/alpha_LC_female_50.xlsx")
+B_LC <- read_excel("~/B_LC_female_50.xlsx")
+beta_LC <- read_excel("~/beta_LC_female_50.xlsx")
 
 #transform parameters into matrices and extract respective values
 alpha_LC <- matrix(alpha_LC$Alpha, nrow  = age_number, ncol = group_number)
@@ -96,22 +97,24 @@ B_LC <- B_LC$B
 for (x in 1:age_number){ # index x age
   for (t in 1:period_number){ # index t period
     for (i in 1:group_number){ # index i group
-      data_female$FittedLog[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*forecast_K[1,t]+beta_LC[x,i]*forecast_kappa[i,t,1]
-      data_female$Lo_80_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*forecast_K[2,t]+beta_LC[x,i]*forecast_kappa[i,t,2]
-      data_female$Lo_95_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*forecast_K[3,t]+beta_LC[x,i]*forecast_kappa[i,t,3]
-      data_female$Hi_80_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*forecast_K[4,t]+beta_LC[x,i]*forecast_kappa[i,t,4]
-      data_female$Hi_95_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*forecast_K[5,t]+beta_LC[x,i]*forecast_kappa[i,t,5]
+      data_female$FittedLog[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        alpha_LC[x,i]+B_LC[x]*forecast_K[1,t]+beta_LC[x,i]*forecast_kappa[i,t,1]
+      data_female$Lo_80_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        alpha_LC[x,i]+B_LC[x]*forecast_K[2,t]+beta_LC[x,i]*forecast_kappa[i,t,2]
+      data_female$Lo_95_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        alpha_LC[x,i]+B_LC[x]*forecast_K[3,t]+beta_LC[x,i]*forecast_kappa[i,t,3]
+      data_female$Hi_80_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        alpha_LC[x,i]+B_LC[x]*forecast_K[4,t]+beta_LC[x,i]*forecast_kappa[i,t,4]
+      data_female$Hi_95_FittedRate[data_female$Year == t+ObsYear & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        alpha_LC[x,i]+B_LC[x]*forecast_K[5,t]+beta_LC[x,i]*forecast_kappa[i,t,5]
     }
   }
 }
 
-#export data
-write.csv(data_female, "C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/Forecasts/LiLeeModel/forecasteddata_female.csv")
-
 ##############################
 # plots
 ##############################
-#plot of single time series only
+# plot of single time series only
 ##############################
 i <- 1
 timeseries_1_time <- timeseries_1$Time
@@ -141,9 +144,10 @@ plot_K_LC <- ggplot(data = timeseries_new, aes(x=Time, y=K)) +
   xlab("Year") + ylab("K_LC") + scale_fill_manual(name = '',values=c("80% CI" = "skyblue4", "95% CI" = "skyblue2"))
 
 ##############################
-#plot of a group specific time series
+# plot of a group specific time series
 ##############################
-g <- 6 #group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" - #https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
+g <- 6 # group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" -
+# https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
 i <- 1
 timeseries_2_time <- timeseries_2$Time[1:33]
 timeseries_2_value <- timeseries_2$Kappa[(33*(g-1)+1):(33*(g-1)+33)]
@@ -178,10 +182,14 @@ plot_Kappa_LC <- ggplot(data = timeseries_new_2, aes(x=Time, y=Kappa)) +
 for (x in 1:age_number){ # index x age
   for (t in 1:(period_range)){ # index t period
     for (i in 1:group_number){ # index i group
-      data_female$Lo_80_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
-      data_female$Lo_95_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
-      data_female$Hi_80_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
-      data_female$Hi_95_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
+      data_female$Lo_80_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
+      data_female$Lo_95_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
+      data_female$Hi_80_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
+      data_female$Hi_95_FittedRate[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+        data_female$FittedLog[data_female$Year == t+min_period-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i]
     }
   }
 }
@@ -220,4 +228,6 @@ plot_forecastedrates <- ggplot(data = data_female_g1, aes(x=Year, y=FittedLog)) 
   geom_vline(xintercept = 2014.5, linetype = "dashed", color = "black", size = 1) +
   ggtitle(paste("Forecast Li & Lee, Female Age ",age," Groups ", g1, ", ", g3, " and ", g2, sep = "")) +
   theme(plot.title = element_text(hjust = 0.5), text = element_text(size=20)) +
-  xlab("Year") + ylab("Death Rate (Log)") + scale_fill_manual(name = '',values=c("g1 80% CI" = "royalblue4", "g1 95% CI" = "royalblue2", "g9 80% CI" = "red3", "g9 95% CI" = "red", "g2 80% CI" = "deepskyblue3", "g2 95% CI" = "deepskyblue"))
+  xlab("Year") + ylab("Death Rate (Log)") + scale_fill_manual(name = '',
+    values=c("g1 80% CI" = "royalblue4", "g1 95% CI" = "royalblue2", "g9 80% CI" = "red3", "g9 95% CI" = "red", "g2 80% CI" = "deepskyblue3",
+    "g2 95% CI" = "deepskyblue"))
