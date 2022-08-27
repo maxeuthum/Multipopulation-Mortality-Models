@@ -13,16 +13,15 @@ genderfile <- "male"
 model <- "LSTM3"
 group.number <- 6
 
-data <- read_excel(paste("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/ML Codes/RNN/Parameters/",model,"_secondrun/Data_",genderfile,".xlsx", sep = ""),
-                   col_types = c("numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
-
+data <- read_excel(paste("~/Parameters/",model,"_/Data_",genderfile,".xlsx", sep = ""))
+                   
 # select data
 data_group <- data[which(data$Group_number == group.number),c("Year", "Age", "Standardized Residuals")]
 data_group <- data_group[which(data_group$Year > 1991),c("Year", "Age", "Standardized Residuals")]
 colnames(data_group)[3] <- "Res"
   
 # export file
-dat <- paste("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/ML Codes/Residuals/ResHeatmap_",model,"_Group",group.number,"_",gender,".pdf", sep = "")
+dat <- paste("~/ResHeatmap_",model,"_Group",group.number,"_",gender,".pdf", sep = "")
 pdf(file = dat, width = 6.5, height = 4.5)
 par(mfrow=c(1,1),pin=c(9.,7.))
 
@@ -42,7 +41,7 @@ data_group <- data_group[which(data_group$Year > 1991),c("Year", "Age", "Standar
 colnames(data_group)[3] <- "Res"
 
 # export file
-dat <- paste("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/ML Codes/Residuals/ResPerYear_",model,"_Group",group.number,"_",gender,".pdf", sep = "")
+dat <- paste("~/ResPerYear_",model,"_Group",group.number,"_",gender,".pdf", sep = "")
 pdf(file = dat, width = 6.5, height = 4.5)
 par(mfrow=c(1,1),pin=c(9.,7.))
 
