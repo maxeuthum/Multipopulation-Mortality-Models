@@ -1,7 +1,4 @@
-# implementation of Plat model via Poisson approach, female population
-
-
-
+### implementation of Plat model via Poisson approach, female population
 
 
 # library(dplyr)
@@ -9,7 +6,7 @@
 
 set.seed(429)
 
-data_female <- read_excel("~/TUM/Master Thesis/Codes/General R plots/Finale Daten.xlsx", 
+data_female <- read_excel("~/Finale Daten.xlsx", 
                         sheet = "Daten_female")
 
 ### 1a) initialize parameters
@@ -22,7 +19,8 @@ data_female <- data_female %>%
 
 age_max <- max(data_female$Age) # maximum age
 age_min <- min(data_female$Age) # minimum age
-period_max <- max(data_female$Year) # maximum period - do not take 2018 since for later comparing with ML models need of test set which is 10% of 37 years = approx. 4 years
+period_max <- max(data_female$Year) # maximum period -
+# do not take 2018 since for later comparing with ML models need of test set which is 10% of 37 years = approx. 4 years
 period_min <- min(data_female$Year)  # minimum period
 province_groups <- 9 # number of groups provinces are divided into based on IMD-Index
 
@@ -35,7 +33,7 @@ for (x in 1:age_number){ # index of age
   alpha_Plat[x,] <- tapply(data_female$Lograte[data_female$Age==x+age_min-1], data_female$Group[data_female$Age==x+age_min-1], mean)
 } # average over all t for one specific pair (x,i) -> alpha is mean log mortality rate
 
-### 1b) initialize parameters for the loglikelihood
+### 1b) initialize parameters for the loglikelihood - this is just a random example
 ages <- data_female$Age[1:age_number]
 xbar <- mean(ages)
 
@@ -60,7 +58,8 @@ theta <- c(kappa_1_Plat,kappa_2_Plat) # whole parameter vector for optimization,
 
 ### 2) define Poisson MLE function which will be optimized
 # estimate theta as a whole via minimizing negative loglikelihood
-# derived loglikelihood: sum_(x,t,i) D(x,t,i)*(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i)) - E(x,t,i)*exp(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i)) + c
+# derived loglikelihood: sum_(x,t,i) D(x,t,i)*(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i))
+                                - E(x,t,i)*exp(alpha(x,i) + kappa_1(t,i) + (x-x_bar)*kappa_2(t,i)) + c
 
 Poisson_theta_Plat <- function(theta){
   kappa_1_Plat <- theta[1:(period_number*group_number)]
@@ -70,8 +69,10 @@ Poisson_theta_Plat <- function(theta){
   
   s <- rep(0,age_number) # initialize log-likelihood sum
   for (x in 1:age_number){ # index x age
-    s[x] <- data_female$Deaths[data_female$Age == x+age_min-1] %*% as.vector(t(matrix(alpha_Plat[x,], nrow=period_number, ncol=length(alpha_Plat[x,]), byrow=TRUE) + kappa_1_Plat + kappa_2_Plat*(x+age_min-1-xbar))) -
-      data_female$Exposure[data_female$Age == x+age_min-1] %*% exp(as.vector(t(matrix(alpha_Plat[x,], nrow=period_number, ncol=length(alpha_Plat[x,]), byrow=TRUE) + kappa_1_Plat + kappa_2_Plat*(x+age_min-1-xbar))))
+    s[x] <- data_female$Deaths[data_female$Age == x+age_min-1] %*% as.vector(t(matrix(alpha_Plat[x,],
+          nrow=period_number, ncol=length(alpha_Plat[x,]), byrow=TRUE) + kappa_1_Plat + kappa_2_Plat*(x+age_min-1-xbar))) -
+      data_female$Exposure[data_female$Age == x+age_min-1] %*% exp(as.vector(t(matrix(alpha_Plat[x,],
+          nrow=period_number, ncol=length(alpha_Plat[x,]), byrow=TRUE) + kappa_1_Plat + kappa_2_Plat*(x+age_min-1-xbar))))
   }
   return(-sum(s)) # maximize loglikelihood -> minimize negative loglikelihood, hence as output negative log-likelihood -s
 }
@@ -125,10 +126,8 @@ kappa_2_Plat <- matrix(kappa_2_Plat, nrow  = period_number, ncol = group_number)
 for (x in 1:age_number){ # index x age
   for (t in 1:period_number){ # index t period
     for (i in 1:group_number){ # index i group
-      data_female$FittedLog[data_female$Year == t+period_min-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_Plat[x,i] + kappa_1_Plat[t,i] + kappa_2_Plat[t,i]*(x+age_min-1-xbar)
+      data_female$FittedLog[data_female$Year == t+period_min-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+            alpha_Plat[x,i] + kappa_1_Plat[t,i] + kappa_2_Plat[t,i]*(x+age_min-1-xbar)
     }
   }
 }
-
-# to store parameters:
-# write.csv(kappa_2, "C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/kappa_2_female_50.csv")
