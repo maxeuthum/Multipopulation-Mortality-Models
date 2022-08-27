@@ -5,5 +5,6 @@ This github repository is linked to the master thesis $\textit{Multi-Population 
 The aim is to provide the main structure of the implemented models, anonymizing data, but giving enough inside to allow for a reproduction of the results or application on own data.
 The models were implemented in $\textit{R}$.
 Most of the code lines are commented accordingly helping the reader and user to understand properly the different steps.
+Note, the excel file which is stored in this repository is just an example of the structure of the used data.
 
 However, if there are some issues or problems when implementing the given models, do not hesitate to come back to Maximilian Euthum, maximilian.euthum@outlook.com.
