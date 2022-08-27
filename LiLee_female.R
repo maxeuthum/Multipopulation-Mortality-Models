@@ -17,7 +17,8 @@ data_female <- data_female %>%
 
 age_max <- max(data_female$Age) # maximum age
 age_min <- min(data_female$Age) # minimum age
-period_max <- max(data_female$Year) # maximum period - do not take 2018 since for later comparing with ML models need of test set which is 10% of 37 years = approx. 4 years
+period_max <- max(data_female$Year) # maximum period -
+# do not take 2018 as maximum period, this is just for training set
 period_min <- min(data_female$Year)  # minimum period
 province_groups <- 9 # number of groups provinces are divided into based on IMD-Index
 
@@ -62,7 +63,8 @@ theta <- c(B_LC,K_LC,beta_LC,kappa_LC) # whole parameter vector for optimization
 
 ### 2) define Poisson MLE function which will be optimized
 # estimate theta as a whole via minimizing negative loglikelihood
-# derived loglikelihood: sum_(x,t,i) D(x,t,i)*(alpha(x,i) + B(x)*K(t) + beta(x,i)*kappa(t,i)) - E(x,t,i)*exp(alpha(x,i) + B(x)*K(t) + beta(x,i)*kappa(t,i)) + c
+# derived loglikelihood: sum_(x,t,i) D(x,t,i)*(alpha(x,i) + B(x)*K(t) + beta(x,i)*kappa(t,i))
+#                                 - E(x,t,i)*exp(alpha(x,i) + B(x)*K(t) + beta(x,i)*kappa(t,i)) + c
 
 Poisson_theta_LC <- function(theta){
   B_LC <- theta[c(1:age_number)] # extract parameters from theta
@@ -74,8 +76,14 @@ Poisson_theta_LC <- function(theta){
   
   s <- rep(0,age_number) # initialize log-likelihood sum
   for (x in 1:age_number){ # index x age
-    s[x] <- data_female$Deaths[data_female$Age == x+age_min-1] %*% as.vector(t(matrix(alpha_LC[x,], nrow=period_number, ncol=length(alpha_LC[x,]), byrow=TRUE) + B_LC[x]*matrix(K_LC,nrow = period_number,ncol = group_number)+matrix(beta_LC[x,], nrow=period_number, ncol=length(beta_LC[x,]), byrow=TRUE)*kappa_LC)) -
-      data_female$Exposure[data_female$Age == x+age_min-1] %*% exp(as.vector(t(matrix(alpha_LC[x,], nrow=period_number, ncol=length(alpha_LC[x,]), byrow=TRUE) + B_LC[x]*matrix(K_LC,nrow = period_number,ncol = group_number)+matrix(beta_LC[x,], nrow=period_number, ncol=length(beta_LC[x,]), byrow=TRUE)*kappa_LC)))
+    s[x] <- data_female$Deaths[data_female$Age == x+age_min-1] %*% as.vector(t(matrix(alpha_LC[x,],
+              nrow=period_number, ncol=length(alpha_LC[x,]), byrow=TRUE)
+              + B_LC[x]*matrix(K_LC,nrow = period_number,ncol = group_number)
+              + matrix(beta_LC[x,], nrow=period_number, ncol=length(beta_LC[x,]), byrow=TRUE)*kappa_LC)) -
+      data_female$Exposure[data_female$Age == x+age_min-1] %*% exp(as.vector(t(matrix(alpha_LC[x,],
+              nrow=period_number, ncol=length(alpha_LC[x,]), byrow=TRUE)
+              + B_LC[x]*matrix(K_LC,nrow = period_number,ncol = group_number)
+              + matrix(beta_LC[x,], nrow=period_number, ncol=length(beta_LC[x,]), byrow=TRUE)*kappa_LC)))
   }
   return(-sum(s)) # maximize loglikelihood -> minimize negative loglikelihood, hence as output negative log-likelihood -s
 }
@@ -135,7 +143,8 @@ kappa_LC <- matrix(kappa_LC, nrow  = period_number, ncol = group_number)
 for (x in 1:age_number){ # index x age
   for (t in 1:period_number){ # index t period
     for (i in 1:group_number){ # index i group
-      data_female$FittedLog[data_female$Year == t+period_min-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <- alpha_LC[x,i]+B_LC[x]*K_LC[t]+beta_LC[x,i]*kappa_LC[t,i]
+      data_female$FittedLog[data_female$Year == t+period_min-1 & data_female$Age == x+age_min-1 & data_female$Group_number == i] <-
+                    alpha_LC[x,i]+B_LC[x]*K_LC[t]+beta_LC[x,i]*kappa_LC[t,i]
     }
   }
 }
