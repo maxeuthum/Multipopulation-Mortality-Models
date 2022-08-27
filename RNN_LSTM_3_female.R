@@ -295,7 +295,8 @@ final.forecasted.rates.female <- array(NA, dim = 9*46*4)
 groups_listed <- c(rep(1,184),rep(2,184),rep(3,184),rep(4,184),rep(5,184),rep(6,184),rep(7,184),rep(8,184),rep(9,184)) # 184 = 4 * 46
 sorted.forecasted.rates.female <- cbind(rep(test.group1$Year,9),rep(test.group1$Age,9),groups_listed,mean.forecasted.rates.female)
 colnames(sorted.forecasted.rates.female) <- c("Year","Age","Group","Lograte")
-sorted.forecasted.rates.female <- sorted.forecasted.rates.female[order(sorted.forecasted.rates.female[,1], sorted.forecasted.rates.female[,2], sorted.forecasted.rates.female[,3]),]
+sorted.forecasted.rates.female <- sorted.forecasted.rates.female[order(sorted.forecasted.rates.female[,1], sorted.forecasted.rates.female[,2],
+                                                                       sorted.forecasted.rates.female[,3]),]
 
 # export predicted rates
 write.csv(-pred.rates, paste("~/pred.rates_", RNN.type, "_3_",tau1,tau2,tau3,".csv", sep=""))
