@@ -20,7 +20,7 @@ data_male <- data_male %>%
 age_max <- max(data_male$Age) # maximum age
 age_min <- min(data_male$Age) # minimum age
 period_max <- max(data_male$Year) # maximum period -
-# do not take 2018 since for later comparing with ML models need of test set which is 10% of 37 years = approx. 4 years
+# do not take 2018 as maximum period, this is just for training set
 period_min <- min(data_male$Year)  # minimum period
 province_groups <- 9 # number of groups provinces are divided into based on IMD-Index
 
