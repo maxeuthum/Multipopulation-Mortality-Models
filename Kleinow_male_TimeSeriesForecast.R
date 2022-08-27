@@ -13,18 +13,18 @@
 ##############################
 # Males
 ##############################
-#import whole data and define basic variables
+# import whole data and define basic variables
 
-data_male <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/fitteddata_male_50.xlsx")
+data_male <- read_excel("~/fitteddata_male_50.xlsx")
 age_max <- max(data_male$Age)
 age_min <- min(data_male$Age)
-period_max <- 2018 #last year of prediction
-period_min <- 2015 #first year of prediction
-ObsYear <- 2014 #last year from training data
+period_max <- 2018 # last year of prediction
+period_min <- 2015 # first year of prediction
+ObsYear <- 2014 # last year from training data
 
-age_number <- age_max - age_min + 1 #number of ages observed
-period_number <- period_max - period_min + 1 #number of periods to predict
-group_number <- 9 #number of deprivation groups
+age_number <- age_max - age_min + 1 # number of ages observed
+period_number <- period_max - period_min + 1 # number of periods to predict
+group_number <- 9 # number of deprivation groups
 
 groups <- c("g1","g2","g3","g4","g5","g6","g7","g8","g9")
 groups_numbers <- c(1,2,3,4,5,6,7,8,9)
@@ -33,7 +33,7 @@ groups_numbers <- c(1,2,3,4,5,6,7,8,9)
 # group specific time component 2
 ##############################
 
-timeseries_2 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/kappa_2_male_50.xlsx")
+timeseries_2 <- read_excel("~/kappa_2_male_50.xlsx")
 timeseries_2$Group <- as.factor(timeseries_2$Group)
 
 forecast_kappa_2 <- array(NA, c(9, 4, 5))
@@ -41,9 +41,10 @@ model_type_kappa_2 <- list()
 model_coef_kappa_2 <- list()
 model_summary_kappa_2 <- list()
 
-#forecast kappa_2
+# forecast kappa_2
 for(g in groups_numbers){
-  fit <- auto.arima(ts(timeseries_2$Kappa_2[which(timeseries_2$Group_number == g)])) # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
+  fit <- auto.arima(ts(timeseries_2$Kappa_2[which(timeseries_2$Group_number == g)]))
+  # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
   fc <- forecast(fit,h=4)
   model_type_kappa_2[[g]] <- fc$method
   model_coef_kappa_2[[g]] <- fc$model$coef
@@ -59,7 +60,7 @@ for(g in groups_numbers){
 # group specific time component 1
 ##############################
 
-timeseries_1 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/kappa_1_male_50.xlsx")
+timeseries_1 <- read_excel("~/kappa_1_male_50.xlsx")
 timeseries_1$Group <- as.factor(timeseries_1$Group)
 
 forecast_kappa_1 <- array(NA, c(9, 4, 5))
@@ -67,9 +68,9 @@ model_type_kappa_1 <- list()
 model_coef_kappa_1 <- list()
 model_summary_kappa_1 <- list()
 
-#forecast kappa_2
+# forecast kappa_2
 for(g in groups_numbers){
-  fit <- auto.arima(ts(timeseries_1$Kappa_1[which(timeseries_1$Group_number == g)])) # https://www.rdocumentation.org/packages/forecast/versions/8.14/topics/auto.arima
+  fit <- auto.arima(ts(timeseries_1$Kappa_1[which(timeseries_1$Group_number == g)]))
   fc <- forecast(fit,h=4)
   model_type_kappa_1[[g]] <- fc$method
   model_coef_kappa_1[[g]] <- fc$model$coef
@@ -85,11 +86,11 @@ for(g in groups_numbers){
 # import parameters from likelihood estimation
 ##############################
 
-alpha_KL <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/alpha_male_50.xlsx")
-beta_1 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/beta_1_male_50.xlsx")
-beta_2 <- read_excel("C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/beta_2_male_50.xlsx")
+alpha_KL <- read_excel("~/alpha_male_50.xlsx")
+beta_1 <- read_excel("~/beta_1_male_50.xlsx")
+beta_2 <- read_excel("~/beta_2_male_50.xlsx")
 
-#transform parameters into matrices and extract respective values
+# transform parameters into matrices and extract respective values
 alpha_KL <- matrix(alpha_KL$Alpha, nrow  = age_number, ncol = group_number)
 beta_1 <- beta_1$Beta_1
 beta_2 <- beta_2$Beta_2
@@ -101,24 +102,27 @@ beta_2 <- beta_2$Beta_2
 for (x in 1:age_number){ # index x age
   for (t in 1:period_number){ # index t period
     for (i in 1:group_number){ # index i group
-      data_male$FittedLog[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,1]+beta_2[x]*forecast_kappa_2[i,t,1]
-      data_male$Lo_80_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,2]+beta_2[x]*forecast_kappa_2[i,t,2]
-      data_male$Lo_95_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,3]+beta_2[x]*forecast_kappa_2[i,t,3]
-      data_male$Hi_80_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,4]+beta_2[x]*forecast_kappa_2[i,t,4]
-      data_male$Hi_95_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,5]+beta_2[x]*forecast_kappa_2[i,t,5]
+      data_male$FittedLog[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,1]+beta_2[x]*forecast_kappa_2[i,t,1]
+      data_male$Lo_80_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,2]+beta_2[x]*forecast_kappa_2[i,t,2]
+      data_male$Lo_95_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,3]+beta_2[x]*forecast_kappa_2[i,t,3]
+      data_male$Hi_80_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,4]+beta_2[x]*forecast_kappa_2[i,t,4]
+      data_male$Hi_95_FittedRate[data_male$Year == t+ObsYear & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        alpha_KL[x,i]+beta_1[x]*forecast_kappa_1[i,t,5]+beta_2[x]*forecast_kappa_2[i,t,5]
     }
   }
 }
 
-#export data
-write.csv(data_male, "C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/Forecasts/KleinowModel/forecasteddata_male.csv")
-
 ##############################
 # plots
 ##############################
-#plot of time series 1
+# plot of time series 1
 ##############################
-g <- 6 #group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" - #https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
+g <- 6 #group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" -
+# https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
 i <- 1
 timeseries_1_time <- timeseries_1$Time[1:33]
 timeseries_1_value <- timeseries_1$Kappa_1[(33*(g-1)+1):(33*(g-1)+33)]
@@ -149,7 +153,8 @@ plot_Kappa_1 <- ggplot(data = timeseries_new_1, aes(x=Time, y=Kappa_1)) +
 ##############################
 #plot of time series 2
 ##############################
-g <- 1 #group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" - #https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
+g <- 1 #group to be plotted, group colors:  "#000066", "#0033FF","#6699FF", "#00CD00", "#FFD700", "#D2691E",  "#EE82EE","#551A8B", "#FF0000" -
+# https://rstudio-pubs-static.s3.amazonaws.com/3486_79191ad32cf74955b4502b8530aad627.html
 i <- 1
 timeseries_2_time <- timeseries_2$Time[1:33]
 timeseries_2_value <- timeseries_2$Kappa_2[(33*(g-1)+1):(33*(g-1)+33)]
@@ -188,10 +193,14 @@ period_range <- max_period-min_period+1
 for (x in 1:age_number){ # index x age
   for (t in 1:(period_range)){ # index t period
     for (i in 1:group_number){ # index i group
-      data_male$Lo_80_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
-      data_male$Lo_95_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
-      data_male$Hi_80_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
-      data_male$Hi_95_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <- data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
+      data_male$Lo_80_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
+      data_male$Lo_95_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
+      data_male$Hi_80_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
+      data_male$Hi_95_FittedRate[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i] <-
+        data_male$FittedLog[data_male$Year == t+min_period-1 & data_male$Age == x+age_min-1 & data_male$Group_number == i]
     }
   }
 }
@@ -226,4 +235,5 @@ plot_forecastedrates <- ggplot(data = data_male_g1, aes(x=Year, y=FittedLog)) +
   geom_vline(xintercept = 2014.5, linetype = "dashed", color = "black", size = 1) +
   ggtitle(paste("Forecast Kleinow, Male Age ",age," Groups ", g1, ", ", g3, " and ", g2, sep = "")) +
   theme(plot.title = element_text(hjust = 0.5), text = element_text(size=20)) +
-  xlab("Year") + ylab("Death Rate (Log)") + scale_fill_manual(name = '',values=c("g1 80% CI" = "royalblue4", "g1 95% CI" = "royalblue2", "g9 80% CI" = "red3", "g9 95% CI" = "red", "g2 80% CI" = "deepskyblue3", "g2 95% CI" = "deepskyblue"))
+  xlab("Year") + ylab("Death Rate (Log)") + scale_fill_manual(name = '',values=c("g1 80% CI" = "royalblue4", "g1 95% CI" = "royalblue2",
+    "g9 80% CI" = "red3", "g9 95% CI" = "red", "g2 80% CI" = "deepskyblue3", "g2 95% CI" = "deepskyblue"))
