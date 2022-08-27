@@ -1,7 +1,4 @@
-# implementation of Kleinow model via Poisson approach, male population
-
-
-
+### implementation of Kleinow model via Poisson approach, male population
 
 
 # library(dplyr)
@@ -9,7 +6,7 @@
 
 set.seed(429)
 
-data_male <- read_excel("~/TUM/Master Thesis/Codes/General R plots/Finale Daten.xlsx", 
+data_male <- read_excel("~/Finale Daten.xlsx", 
                         sheet = "Daten_male")
 
 ### 1a) initialize parameters
@@ -35,7 +32,7 @@ for (x in 1:age_number){ # index of age
   alpha[x,] <- tapply(data_male$Lograte[data_male$Age==x+age_min-1], data_male$Group[data_male$Age==x+age_min-1], mean)
 } # average over all t for one specific pair (x,i) -> alpha is mean log mortality rate
 
-### 1b) initialize parameters for the loglikelihood
+### 1b) initialize parameters for the loglikelihood - this is just a random example
 ages <- age_min:age_max
 
 beta_2 <- -(ages-50)^2+50
@@ -148,5 +145,3 @@ for (x in 1:age_number){ # index x age
     }
   }
 }
-
-#write.csv(kappa_2, "C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/kappa_2_male_50.csv")
