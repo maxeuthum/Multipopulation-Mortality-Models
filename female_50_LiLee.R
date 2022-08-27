@@ -30,7 +30,7 @@ for (x in 1:age_number){ # index of age
   alpha_LC[x,] <- tapply(data_female$Lograte[data_female$Age==x+age_min-1], data_female$Group[data_female$Age==x+age_min-1], mean)
 } # average over all t for one specific pair (x,i) -> alpha is mean log mortality rate
 
-### 1b) initialize parameters for the loglikelihood
+### 1b) initialize parameters for the loglikelihood - this is just a random example. The aim is to take initial parameters which are reasonable to avoid strange paths in the optimizing algorithm
 ages <- age_min:age_max
 times <- 1:33
 
