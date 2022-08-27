@@ -139,6 +139,3 @@ for (x in 1:age_number){ # index x age
     }
   }
 }
-
-# to store parameters:
-# write.csv(kappa_2, "C:/Users/Maximilian Euthum/Documents/TUM/Master Thesis/Codes/KleinowModel/Parameters/kappa_2_female_50.csv")
